@@ -12,6 +12,7 @@ import WallSection from "./wall-section";
 import WalletSection from "./wallet-section";
 import styles from "./styles.module.css";
 import { useDB } from "@/contexts/DBContexts";
+import Chat from "../chat";
 
 export default function Home() {
     const db = useDB();
@@ -21,8 +22,10 @@ export default function Home() {
 
 
     console.log(db)
+
     return (
         <>
+        <Chat />
         {isBusiness ? <BusinessMain /> : <UserMain />}
         </>
     )

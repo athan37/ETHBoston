@@ -1,34 +1,39 @@
-import axios from 'axios';
 
-class OpenAIChat {
-    constructor(apiKey) {
-        this.apiKey = apiKey;
-        this.endpoint = 'https://api.openai.com/v1/engines/davinci/codex/completions'; // Adjust as needed for your specific GPT model
+import OpenAI from "openai";
+import "dotenv/config";
+import { NextRequest, NextResponse } from 'next/server';
 
-        // Set up the axios instance
-        this.client = axios.create({
-            baseURL: this.endpoint,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.apiKey}`
-            }
-        });
-    }
+const openai = new OpenAI({ apiKey: 'sk-proj-bm6rs5LdueSvCno2S7vdT3BlbkFJZZOjvnF9W7OJdNDM49rBB' });
 
-    async sendMessage(messageText) {
-        const payload = {
-            prompt: messageText,
-            max_tokens: 150
-        };
+  const conversation = [];
+  const savedExercises = [];
 
-        try {
-            const response = await this.client.post('', payload);
-            return response.data;
-        } catch (error) {
-            console.error('Error sending message to OpenAI:', error);
-            throw error;
-        }
-    }
+export default async function chatGenerator(req, res){
+  
+  // OPENAI API
+  try {
+  if (req.method === 'POST') {
+    const { message } = req.body;
+    const userMessage = req.body;
+    conversation.push(userMessage);
+    const completion = await openai.chat.completions.create({
+      messages: conversation,
+      model: "gpt-4",
+    });
+    const choice = completion.choices[0];
+    conversation.push(choice.message);
+    res.json(choice.message);
+  
+    res.status(200).json({ reply: "Response from OpenAI" });
+} else if (req.method === 'GET') {
+    res.json(conversation)
+    res.status(200).json({ message: "This is a GET request response" });
+} else {
+    res.setHeader('Allow', ['GET', 'POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
 }
-
-export default OpenAIChat;
+} catch (error) {
+console.error('API error:', error);
+res.status(500).json({ error: "Internal Server Error", details: error.message });
+}
+}
