@@ -2,7 +2,7 @@ import { Button, Box, Flex } from "@chakra-ui/react"
 import Link from 'next/link'
 // import { Button, ButtonGroup } from '@chakra-ui/react'
 
-const data = ['Home', 'About', 'Puchase','Login', 'Logout']
+const data = ['Home', 'About', 'Puchase', 'Logout']
 
 export default function NavBar() {
     return (

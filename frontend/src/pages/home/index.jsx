@@ -11,13 +11,16 @@ import InfoSection from "./info-section";
 import WallSection from "./wall-section";
 import WalletSection from "./wallet-section";
 import styles from "./styles.module.css";
+import { useDB } from "@/contexts/DBContexts";
 
 export default function Home() {
+    const db = useDB();
     const { walletConnectionStatus } = useWallet();
 
     const [isBusiness, setIsBusiness] = useState(true)
 
 
+    console.log(db)
     return (
         <>
         {isBusiness ? <BusinessMain /> : <UserMain />}

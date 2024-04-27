@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Flex,
   Box,
@@ -25,14 +25,23 @@ import {
   browserSessionPersistence,
 } from "firebase/auth";
 import { FcGoogle } from "react-icons/fc";
+import { useAuth } from "@/contexts/AuthContexts";
+import { useRouter } from "next/router";
 
-export default function Login() {
+export default function Login({setIsLoggedIn, setLoading}) {
+  const router = useRouter()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const toast = useToast();
   const auth = getAuth(app);
   const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
+  // const user = useAuth();
+
+  // useEffect(() => {
+  //   if (user) {
+  //   }
+  // }, [user, router]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -41,14 +50,15 @@ export default function Login() {
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
-        console.log("You're logged in!");
         const userRef = doc(db, "users", user.uid);
 
         const checkUser = async () => {
           const docSnap = await getDoc(userRef);
 
-          if (docSnap.exists()) {
-            navigate("/main");
+          if (docSnap.exists) {
+            setIsLoggedIn(docSnap)
+            setLoading(false)
+            router.push("/home");
           } else {
             navigate("/questions");
           }
@@ -89,13 +99,18 @@ export default function Login() {
         const userRef = doc(db, "users", user.uid);
 
         const checkUser = async () => {
+          setLoading(true)
           const docSnap = await getDoc(userRef);
 
-          if (docSnap.exists()) {
-            // navigate("/main");
+          if (docSnap.exists) {
+            setIsLoggedIn(docSnap)
+            router.push('/home')
           } else {
             // navigate("/questions");
+            setIsLoggedIn(null);
           }
+
+          setLoading(false)
         };
 
         checkUser();
