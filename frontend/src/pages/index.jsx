@@ -15,33 +15,6 @@ export default function HomePage() {
   // }
 
   return (
-    <Grid
-      templateAreas={`"header"
-                      "nav main"
-                      "nav footer"`}
-      gridTemplateRows="50px 1fr 30px"
-      gridTemplateColumns={'repeat(2, 1fr)'}
-      h='100vh'
-      gap='4'
-      color='blackAlpha.700'
-      fontWeight='bold'
-  >
-    <GridItem rowSpan={3} colSpan={4} pl='2' bg='white.300' area={'nav'}>
-        <Flex marginTop={5}>
-            <Header />
-            <Spacer />
-            <NavBar />
-        </Flex>
-    </GridItem>
-    <GridItem rowSpan={2} colSpan={4} margin={20} pl='2' bg='white.300' area={'main'}>
-      {/* <Home /> */}
-      <DynamicContent content={content}/>
-    </GridItem>
-
-
-    <GridItem rowSpan={2} colSpan={4} pl='2' bg='blue.300' area={'footer'}>
-        Footer
-    </GridItem>
-  </Grid>
+    <></>
   )
 }
