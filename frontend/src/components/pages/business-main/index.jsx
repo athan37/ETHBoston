@@ -3,6 +3,26 @@ import Card from "./card";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
+import { db } from '../../../pages/client/firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { useEffect } from "react";
+import { getAuth } from 'firebase/auth';
+
+const auth = getAuth();
+async function addBountiesToFirestore(bountyDataArray) {
+  const addedDocs = [];
+  for (const bountyData of bountyDataArray) {
+      try {
+          const docRef = await addDoc(collection(db, "bounties"), bountyData);
+          console.log("Document written with ID: ", docRef.id);
+          addedDocs.push({ id: docRef.id, ...bountyData });
+      } catch (e) {
+          console.error("Error adding document: ", e);
+      }
+  }
+  return addedDocs;
+}
+
 const data = [
     {
       "event": "Park Cleanup Drive",
@@ -47,6 +67,11 @@ const data = [
   ]
   
 export default function BusinessMain() {
+  useEffect(() => {
+    addBountiesToFirestore(data)
+        .then(addedDocs => console.log('Added documents:', addedDocs))
+        .catch(e => console.error('Error in adding documents:', e));
+}, []);
     return (
       <div>
         {/* This is for bounties */}
