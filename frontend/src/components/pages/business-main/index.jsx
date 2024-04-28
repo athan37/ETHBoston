@@ -23,7 +23,7 @@ async function addBountiesToFirestore(bountyDataArray) {
   return addedDocs;
 }
 
-const data = [
+let data = [
     {
       "event": "Park Cleanup Drive",
       "amount": 50,
@@ -68,9 +68,9 @@ const data = [
   
 export default function BusinessMain() {
   useEffect(() => {
-    addBountiesToFirestore(data)
-        .then(addedDocs => console.log('Added documents:', addedDocs))
-        .catch(e => console.error('Error in adding documents:', e));
+    // addBountiesToFirestore(data)
+    //     .then(addedDocs => console.log('Added documents:', addedDocs))
+    //     .catch(e => console.error('Error in adding documents:', e));
 }, []);
     return (
       <div>

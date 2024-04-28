@@ -9,11 +9,11 @@ import Login from './login';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import app from './client/firebase';
 import LoadingScreen from '@/components/loading';
+import { AlchemyProvider } from 'alchemy-sdk';
 
 export default function App({ Component, pageProps }) {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(false);
   const [loading, setLoading] = useState(false);
-
 
   if (currentUser === null && !loading) {
     return (
@@ -27,17 +27,18 @@ export default function App({ Component, pageProps }) {
     <LoadingScreen />
   )
 
+
   return (
     <ChakraProvider>
+      <AlchemyProvider>
       <AuthProvider user={currentUser}>
-        {/* <DBProvider> */}
           <WalletProvider>
             <Layout>
               <Component {...pageProps} />
             </Layout>
           </WalletProvider>
-        {/* </DBProvider> */}
       </AuthProvider>
+      </AlchemyProvider>
     </ChakraProvider>
   );
 }

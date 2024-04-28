@@ -1,6 +1,7 @@
 import { Flex, Grid, GridItem, Spacer } from "@chakra-ui/react";
 import Header from "./pages/header";
 import NavBar from "./pages/nav-bar";
+import Chat from "./pages/chat";
 
 const Layout = ({ children }) => (
       <Grid
@@ -24,8 +25,9 @@ const Layout = ({ children }) => (
     <GridItem rowSpan={10} colSpan={4} margin={20} pl='4' bg='white.300' area={'main'}>
         {children}
     </GridItem>
-    <GridItem rowSpan={2} colSpan={4} pl='2' bg='blue.300' area={'footer'}>
+    <GridItem rowSpan={1} colSpan={2} pl='2' bg='blue.300' area={'footer'}>
         Footer
+        <Chat />
     </GridItem>
   </Grid>
 );

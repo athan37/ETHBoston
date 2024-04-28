@@ -12,6 +12,7 @@ import WallSection from "./wall-section";
 import WalletSection from "./wallet-section";
 import styles from "./styles.module.css";
 import { useDB } from "@/contexts/DBContexts";
+import Chat from "@/components/pages/chat";
 
 export default function Home() {
     const db = useDB();
