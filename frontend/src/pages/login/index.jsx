@@ -55,12 +55,12 @@ export default function Login({setIsLoggedIn, setLoading}) {
         const checkUser = async () => {
           const docSnap = await getDoc(userRef);
 
-          if (docSnap.exists) {
-            setIsLoggedIn(docSnap)
-            setLoading(false)
+          if (docSnap.exists()) {
+            setIsLoggedIn(docSnap);
+            setLoading(false);
             router.push("/home");
           } else {
-            navigate("/questions");
+            router.push("/create-profile");
           }
         };
 
@@ -102,7 +102,7 @@ export default function Login({setIsLoggedIn, setLoading}) {
           setLoading(true)
           const docSnap = await getDoc(userRef);
 
-          if (docSnap.exists) {
+          if (docSnap.exists()) {
             setIsLoggedIn(docSnap)
             router.push('/home')
           } else {
@@ -131,6 +131,10 @@ export default function Login({setIsLoggedIn, setLoading}) {
         });
       });
   };
+
+  const handleRegister  = () => {
+    router.push('/register')
+  }
 
   return (
     <Flex
@@ -187,6 +191,16 @@ export default function Login({setIsLoggedIn, setLoading}) {
                 onClick={handleLogin}
               >
                 Sign in
+              </Button>
+              <Button
+                bg={"blue.400"}
+                color={"white"}
+                _hover={{
+                  bg: "blue.500",
+                }}
+                onClick={handleRegister}
+              >
+                Create a new account
               </Button>
               <Button
                 data-testid="loginButton"

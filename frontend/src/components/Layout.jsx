@@ -24,9 +24,9 @@ const Layout = ({ children }) => (
     <GridItem rowSpan={10} colSpan={4} margin={20} pl='4' bg='white.300' area={'main'}>
         {children}
     </GridItem>
-    <GridItem rowSpan={2} colSpan={4} pl='2' bg='blue.300' area={'footer'}>
+    {/* <GridItem rowSpan={2} colSpan={4} pl='2' bg='blue.300' area={'footer'}>
         Footer
-    </GridItem>
+    </GridItem> */}
   </Grid>
 );
 

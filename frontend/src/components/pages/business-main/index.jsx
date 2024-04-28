@@ -1,115 +1,116 @@
-import { Flex, Text, List, ListItem } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { Flex, Text, Spacer } from "@chakra-ui/react";
+import Link from "next/link";
 import Card from "./card";
 import { useRouter } from "next/router";
-import Link from "next/link";
 
 import { db } from '../../../pages/client/firebase';
-import { collection, addDoc } from 'firebase/firestore';
-import { useEffect } from "react";
-import { getAuth } from 'firebase/auth';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { Button } from "@chakra-ui/react";
 
 const auth = getAuth();
-async function addBountiesToFirestore(bountyDataArray) {
-  const addedDocs = [];
-  for (const bountyData of bountyDataArray) {
-      try {
-          const docRef = await addDoc(collection(db, "bounties"), bountyData);
-          console.log("Document written with ID: ", docRef.id);
-          addedDocs.push({ id: docRef.id, ...bountyData });
-      } catch (e) {
-          console.error("Error adding document: ", e);
-      }
-  }
-  return addedDocs;
-}
 
-const data = [
-    {
-      "event": "Park Cleanup Drive",
-      "amount": 50,
-      "starRating": 4.5,
-      "numReviews": 22,
-      "prize": "Free lunch from a local cafe",
-      "status": "New"
-    },
-    {
-      "event": "Local Library Organization",
-      "amount": 30,
-      "starRating": 4.0,
-      "numReviews": 18,
-      "prize": "Book vouchers",
-      "status": "Not new"
-    },
-    {
-      "event": "Senior Tech Help Day",
-      "amount": 40,
-      "starRating": 4.8,
-      "numReviews": 15,
-      "prize": "Coffee shop gift card",
-      "status": "New"
-    },
-    {
-      "event": "Community Garden Tending",
-      "amount": 35,
-      "starRating": 4.2,
-      "numReviews": 12,
-      "prize": "Gardening supplies gift pack",
-      "status": "Not new"
-    },
-    {
-      "event": "Neighborhood Beautification",
-      "amount": 45,
-      "starRating": 4.7,
-      "numReviews": 25,
-      "prize": "Local store discount coupons",
-      "status": "New"
-    }
-  ]
-  
 export default function BusinessMain() {
+  const [data, setData] = useState([]);
+  const [rewards, setRewards] = useState([]);
+  const [company, setCompany] = useState('');
+  const router = useRouter();
+
   useEffect(() => {
-    addBountiesToFirestore(data)
-        .then(addedDocs => console.log('Added documents:', addedDocs))
-        .catch(e => console.error('Error in adding documents:', e));
-}, []);
-    return (
-      <div>
-        {/* This is for bounties */}
-        <Flex margin={30} align="center" justify="center">
-            <Text color='black' fontSize='5xl'> Bounties </Text>
-        </Flex>
-        <Flex align="center" justify="center">
-            {data.map( ({event, amount, starRating, numReviews, prize, status }) => 
-            <Link key={prize} href={`bounty/${prize}`} passHref>
-               <Card
-                    event={event}
-                    amount={amount}
-                    starRating={starRating}
-                    numReviews={numReviews}
-                    prize={prize}
-                    status={status}
-                />
-            </Link>
-            )}
-        </Flex>
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        try {
+          const docSnapshot = await getDoc(userDocRef);
+          if (docSnapshot.exists()) {
+            const userData = docSnapshot.data();
+            setCompany(userData.company);  // Assuming userData.company is not null or undefined
+          } else {
+            console.log("No user data available");
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      } else {
+        console.log("No user is signed in");
+      }
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
+  useEffect(() => {
+    if (company) {
+      const fetchBounties = async () => {
+        const bountiesSnapshot = await getDocs(collection(db, "bounties"));
+        const bounties = bountiesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })).filter(bounty => bounty.company.toLowerCase() === company.toLowerCase());
+        setData(bounties);
+      };
+      fetchBounties();
 
-        {/* This is for rewards */}
-        <Flex margin={20} align="center" justify="center">
-            <Text color='black' fontSize='5xl'> Rewards </Text>
-        </Flex>
-        <Flex align="center" justify="center">
-            {data.map( ({event, amount, starRating, numReviews, prize, status }) => 
-               <Card
-                    event={event}
-                    amount={amount}
-                    starRating={starRating}
-                    numReviews={numReviews}
-                    prize={prize}
-                    status={status}
-                />
-            )}
-        </Flex>
-      </div>
-    )
+      const fetchRewards = async () => {
+        const rewardsSnapshot = await getDocs(collection(db, "rewards"));
+        const rewards = rewardsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })).filter(reward => reward.company.toLowerCase() === company.toLowerCase());
+        setRewards(rewards);
+      };
+      fetchRewards();
+    }
+  }, [company]);
+
+  return (
+    <div>
+      {/* Bounties Section */}
+      <Flex align="center" justify="center" position="relative" height="100px" marginX={30}>
+  <Text color='black' fontSize='5xl'> Bounties </Text>
+  <Button colorScheme="blue" variant="solid" size="md" position="absolute" right={0} onClick={() => router.push('/bounty/create')}>
+    Create Bounty
+  </Button>
+</Flex>
+      
+      <Flex align="center" justify="center">
+        {data.map((bounty) => (
+          <Link passHref key={bounty.id} href={`bounty/${bounty.id}`} >
+            <Card
+              id={bounty.id}
+
+              event={bounty.event}
+              amount={bounty.rewardAmount}
+              starRating={Math.floor(Math.random() * 10) / 2 + 1}
+              numReviews={Math.floor(Math.random())}
+              prize={bounty.rewardAmount}
+              status={bounty.isActive}
+              type = 'bounty'
+              description = {bounty.description}
+            />
+          </Link>
+        ))}
+      </Flex>
+
+      {/* Rewards Section */}
+      <Flex margin={20} align="center" justify="center">
+        <Text color='black' fontSize='5xl'> Rewards </Text>
+      </Flex>
+      <Flex align="center" justify="center">
+        {rewards.map((reward) => (
+          <Link key={reward.id} href={`reward/${reward.id}`} passHref>
+            <Card
+              id={reward.id}
+              event={reward.company}
+              numReviews={reward.coins}
+              amount={reward.description}
+              status={reward.isRedeemed}
+              description={reward.description}
+              type = 'reward'
+            />
+          </Link>
+        ))}
+      </Flex>
+    </div>
+  );
 }

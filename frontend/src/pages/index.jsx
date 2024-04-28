@@ -4,7 +4,7 @@ import NavBar from "@/components/pages/nav-bar";
 import { useRouter } from "next/router";
 import DynamicContent from "@/components/DynamicContent";
 import Layout from "@/components/Layout";
-
+import ProtectedRoute from '@/components/ProtectedRoutes';
 
 export default function HomePage() {
   const router = useRouter();

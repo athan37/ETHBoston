@@ -6,7 +6,7 @@ export const getConversation = async () => {
     return response.data;
 };
 
-export const postMessage = async (message: any) => {
+export const postMessage = async (message : any) => {
     const response = await axios.post(`/api/chatbot`,
         message);
     return response.data;

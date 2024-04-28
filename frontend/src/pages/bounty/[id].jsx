@@ -1,13 +1,47 @@
-import { Box, Container, Heading, Text, Image, Button, Flex, Badge, VStack } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  Image,
+  Button,
+  Flex,
+  Badge,
+  VStack,
+} from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { db } from "../client/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function Bounty() {
   const router = useRouter();
   const { id } = router.query;
+  const [bounty, setBounty] = useState({});
 
   //Call API here
+  useEffect(() => {
+    async function fetchBounty() {
+      if (id) { 
+        try {
+          const docRef = doc(db, "bounties", id);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists) {
+            setBounty({ id: docSnap.id, ...docSnap.data() });
+          } else {
+            console.log("No such document!");
+            setBounty({});
+          }
+        } catch (error) {
+          console.error("Error fetching document:", error);
+        }
+      }
+    }
 
-   // Example reward data
+    fetchBounty();
+  }, [id]);
+
+  // Example reward data
    const reward = {
     imageUrl: "https://via.placeholder.com/500",
     title: "Exclusive Reward Package",
@@ -16,16 +50,27 @@ export default function Bounty() {
   };
 
   return (
-    <Flex direction={['column', 'column', 'row']} p={5} maxW="container.xl" mx="auto">
+    <Flex
+      direction={["column", "column", "row"]}
+      p={5}
+      maxW="container.xl"
+      mx="auto"
+    >
       <Box flex="1">
         <Image src={reward.imageUrl} alt={`Reward ${id}`} borderRadius="md" />
       </Box>
       <VStack flex="1" alignItems="start" px={5} spacing={4}>
-        <Heading as="h1">{reward.title}</Heading>
-        <Text fontSize="lg">{reward.description}</Text>
-        <Badge colorScheme="green">New</Badge>
-        <Text fontSize="2xl" fontWeight="bold">{reward.price}</Text>
-        <Button colorScheme="blue" size="lg" onClick={() => alert('Added to cart!')}>
+        <Heading as="h1">{bounty.event}</Heading>
+        <Text fontSize="lg">{bounty.description}</Text>
+        {bounty.isActive ? <Badge colorScheme="green">Active</Badge> : <Badge colorScheme="red">Unavailable</Badge>}
+        <Text fontSize="2xl" fontWeight="bold">
+          {bounty.rewardAmount} BUSC / hour volunteering
+        </Text>
+        <Button
+          colorScheme="blue"
+          size="lg"
+          onClick={() => alert("Added to cart!")}
+        >
           Register for bounty
         </Button>
       </VStack>

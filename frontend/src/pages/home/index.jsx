@@ -1,10 +1,13 @@
 import { useWallet } from "@/hooks/useWallet";
 import BusinessMain from "../../components/pages/business-main";
 import UserMain from "../../components/pages/user-main";
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
+import { doc, getDoc } from 'firebase/firestore';
 import { Flex, Grid, GridItem, Spacer } from "@chakra-ui/react";
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import NavBar from "../../components/pages/nav-bar";
 import Header from "../../components/pages/header";
+import { db } from '../client/firebase'; 
 
 //ignore
 import InfoSection from "./info-section";
@@ -12,36 +15,45 @@ import WallSection from "./wall-section";
 import WalletSection from "./wallet-section";
 import styles from "./styles.module.css";
 import { useDB } from "@/contexts/DBContexts";
-import Chat from "../chat";
+import Chat from "../../components/pages/chat";
+import ProtectedRoute from "../../components/ProtectedRoutes";
 
-export default function Home() {
-    const db = useDB();
-    const { walletConnectionStatus } = useWallet();
+function Home() {
+    const [isBusiness, setIsBusiness] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const auth = getAuth(); // Ensure Firebase auth is initialized properly
 
-    const [isBusiness, setIsBusiness] = useState(true)
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    console.log("Document data:", docSnap.data());
+                    setIsBusiness(docSnap.data().isBusiness); // Assuming there's an 'isBusiness' field
+                    console.log(isBusiness);
+                } else {
+                    console.log("No such document!");
+                }
+            } else {
+                console.log("No user is signed in");
+            }
+            setLoading(false);
+        });
 
+        return () => unsubscribe(); // Clean up subscription on unmount
+    }, []);
 
-    console.log(db)
+    if (loading) {
+        return <div>Loading...</div>; // Loading state while waiting for Firebase response
+    }
 
     return (
         <>
-        <Chat />
-        {isBusiness ? <BusinessMain /> : <UserMain />}
+            <Chat />
+            {isBusiness ? <BusinessMain /> : <UserMain />}
         </>
-    )
+    );
 }
 
-
-    // className={styles.home}
-        // <div >
-            /* <section className={styles.col1}>
-                <WalletSection />
-            </section>
-
-            <section className={styles.col2}>
-                {walletConnectionStatus === "connected"
-                    ? <WallSection />
-                    : <BusinessMain />
-                }
-            </section> */
-        // </div>
+export default Home;
